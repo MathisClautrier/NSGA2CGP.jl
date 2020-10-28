@@ -48,17 +48,23 @@ function NSGA2CGPGeneration(e::NSGA2CGPEvolution)
         rank=1
         indIni=1
         indNext=findlast(x -> x.r ==rank,e.population)
-        while indNext < e.config.n_population # 0 < indNext???
-            Pt1=[Pt1...,e.population[indIni+1:indNext]...]
-
+        Pt1=[Pt1...,e.population[indIni:indNext]...]
+        while indNext < e.config.n_population
             rank+=1
             indIni=indNext
             indNext=findlast(x -> x.r == rank,e.population)
+            Pt1=[Pt1...,e.population[indIni+1:indNext]...]
         end
         if isempty(Pt1)
-            Pt1=sample(e.population[1:indNext],e.config.n_population)
+            I=e.population[1:indNext]
+            crowdingDistanceAssignement!(e,I)
+            sort!(I, by= x->x.distance,rev=true)
+            Pt1=I[1:e.config.n_population]
         else
-            Pt1=[Pt1...,sample(e.population[indIni+1:indNext],e.config.n_population-indIni+1)...]
+            I=e.population[indIni+1:indNext]
+            crowdingDistanceAssignement!(e,I)
+            sort!(I, by= x->x.distance,rev=true)
+            Pt1=[Pt1...,I[1:e.config.n_population-indIni-1]...]
         end
         @assert length(Pt1)==e.config.n_population
         e.population=Pt1
@@ -121,15 +127,18 @@ function fastNonDominatedSort!(e::NSGA2CGPEvolution)
 end
 
 function crowdingDistanceAssignement!(e::NSGA2CGPEvolution,I::Array{NSGA2CGPInd})
+    for ind in I
+        ind.distance=0
+    end
     for i in 1:e.config.d_fitness
-        sort!(I,by=x->get_fitness(x,i))
-        distance!(I[1],Inf)
-        distance!(I[end],Inf)
-        if get_fitness_i(I[1],i)!=get_fitness_i(I[end],i)
-            quot=get_fitness_i(I[end],i)-get_fitness_i(I[1],i)
+        sort!(I,by=x->x.fitness[i])
+        if I[1].fitness[i]!=I[end].fitness[i]
+            I[1].distance=Inf
+            I[end].distance=Inf
+            quot=I[end].fitness[i]-I[1].fitness[i]
             for j in 2:l-1
-                distance!(I[j],get_distance(I[j])+
-                (get_fitness_i(I[j+1],i)-get_fitness_i(I[j-1],i))/quot)
+                I[j].distance=I[j].distance+
+                (I[j+1].fitness[i]-I[j-1].fitness[i])/quot
             end
         end
     end
