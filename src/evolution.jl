@@ -48,12 +48,11 @@ function NSGA2CGPGeneration(e::NSGA2CGPEvolution)
         rank=1
         indIni=1
         indNext=findlast(x -> x.r ==rank,e.population)
-        Pt1=[Pt1...,e.population[indIni:indNext]...]
         while indNext < e.config.n_population
+            Pt1=[Pt1...,e.population[indIni:indNext]...]
             rank+=1
-            indIni=indNext
+            indIni=indNext+1
             indNext=findlast(x -> x.r == rank,e.population)
-            Pt1=[Pt1...,e.population[indIni+1:indNext]...]
         end
         if isempty(Pt1)
             I=e.population[1:indNext]
@@ -61,10 +60,10 @@ function NSGA2CGPGeneration(e::NSGA2CGPEvolution)
             sort!(I, by= x->x.distance,rev=true)
             Pt1=I[1:e.config.n_population]
         else
-            I=e.population[indIni+1:indNext]
+            I=e.population[indIni:indNext]
             crowdingDistanceAssignement!(e,I)
             sort!(I, by= x->x.distance,rev=true)
-            Pt1=[Pt1...,I[1:e.config.n_population-indIni-1]...]
+            Pt1=[Pt1...,I[1:e.config.n_population-length(Pt1)]...]
         end
         @assert length(Pt1)==e.config.n_population
         e.population=Pt1
@@ -130,6 +129,7 @@ function crowdingDistanceAssignement!(e::NSGA2CGPEvolution,I::Array{NSGA2CGPInd}
     for ind in I
         ind.distance=0
     end
+    l=length(I)
     for i in 1:e.config.d_fitness
         sort!(I,by=x->x.fitness[i])
         if I[1].fitness[i]!=I[end].fitness[i]
