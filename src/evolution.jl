@@ -42,6 +42,7 @@ end
 function NSGA2CGPGeneration(e::NSGA2CGPEvolution)
     if(e.gen>1)
         fastNonDominatedSort!(e)
+        normalize!(e)
         Pt1=Array{NSGA2CGPInd}(undef,0)
         i=1
         sort!(e.population,by= x -> x.r)
@@ -80,6 +81,23 @@ function dominates(e::NSGA2CGPEvolution,ind1::NSGA2CGPInd,ind2::NSGA2CGPInd)
         end
     end
     return dom
+end
+
+function normalize!(e::NSGA2CGPEvolution)
+    for i in 1:e.config.d_fitness
+        sort!(e.population,by=x->x.fitness[i])
+        min = e.population[1].fitness[i]
+        max = e.population[end].fitness[i]
+        if min != max
+            for x in e.population
+                x.normfitness[i]=(x.fitness[i]-min)/(max - min)
+            end
+        else
+            for x in e.population
+                x.normfitness[i]=1
+            end
+        end
+    end
 end
 
 function fastNonDominatedSort!(e::NSGA2CGPEvolution)
@@ -131,14 +149,14 @@ function crowdingDistanceAssignement!(e::NSGA2CGPEvolution,I::Array{NSGA2CGPInd}
     end
     l=length(I)
     for i in 1:e.config.d_fitness
-        sort!(I,by=x->x.fitness[i])
-        if I[1].fitness[i]!=I[end].fitness[i]
+        sort!(I,by=x->x.normfitness[i])
+        if I[1].normfitness[i]!=I[end].normfitness[i]
             I[1].distance=Inf
             I[end].distance=Inf
-            quot=I[end].fitness[i]-I[1].fitness[i]
+            quot=I[end].normfitness[i]-I[1].normfitness[i]
             for j in 2:l-1
                 I[j].distance=I[j].distance+
-                (I[j+1].fitness[i]-I[j-1].fitness[i])/quot
+                (I[j+1].normfitness[i]-I[j-1].normfitness[i])/quot
             end
         end
     end

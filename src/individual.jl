@@ -24,6 +24,7 @@ mutable struct NSGA2CGPInd <: Cambrian.Individual
     nodes::Array{Node}
     buffer::Array{Float64}
     fitness::Array{Float64}
+    normfitness::Array{Float64}
     distance::Float64
     r::Int64
     n::Int64
@@ -77,7 +78,7 @@ function NSGA2CGPInd(cfg::NamedTuple, chromosome::Array{Float64}, genes::Array{I
     end
     buffer = zeros(R * C + cfg.n_in)
     fitness = -Inf .* ones(cfg.d_fitness)
-    NSGA2CGPInd(cfg.n_in, cfg.n_out, chromosome, genes, outputs, nodes, buffer, fitness,0.,0,0,[])
+    NSGA2CGPInd(cfg.n_in, cfg.n_out, chromosome, genes, outputs, nodes, buffer, fitness,copy(fitness),0.,0,0,[])
 end
 
 function NSGA2CGPInd(cfg::NamedTuple, chromosome::Array{Float64})::NSGA2CGPInd
@@ -118,7 +119,7 @@ function copy(ind::NSGA2CGPInd)
         nodes[i] = copy(ind.nodes[i])
     end
     NSGA2CGPInd(ind.n_in, ind.n_out, copy(ind.chromosome), copy(ind.genes),
-           copy(ind.outputs), nodes, buffer, copy(ind.fitness),copy(ind.distance),
+           copy(ind.outputs), nodes, buffer, copy(ind.fitness),copy(ind.normfitness),copy(ind.distance),
            copy(ind.r),copy(ind.n),copy(ind.S))
 end
 

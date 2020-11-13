@@ -19,7 +19,13 @@ function process(ind::NSGA2CGPInd)::Array{Float64}
     for i in eachindex(ind.nodes)
         n = ind.nodes[i]
         if n.active
-            ind.buffer[i] = n.f(ind.buffer[n.x], ind.buffer[n.y])
+            outputtemp=n.f(ind.buffer[n.x], ind.buffer[n.y])
+            if outputtemp > 1
+                outputtemp=1
+            elseif outputtemp <-1
+                outputtemp = -1
+            end
+            ind.buffer[i] = outputtemp
         end
     end
     get_outputs(ind)
