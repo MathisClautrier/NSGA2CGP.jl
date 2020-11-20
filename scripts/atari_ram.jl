@@ -19,7 +19,7 @@ s = ArgParseSettings()
 @add_arg_table s begin
     "--cfg"
     help = "configuration script"
-    default = "cfg/atari_ram.yaml"
+    default = "cfg/atari_ram3.yaml"
     "--game"
     help = "game rom name"
     arg_type = Array{String}

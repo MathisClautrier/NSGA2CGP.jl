@@ -113,7 +113,7 @@ function copy(n::Node)
 end
 
 function copy(ind::NSGA2CGPInd)
-    buffer = Array{Float64}(undef, length(ind.buffer))
+    buffer = zeros(length(ind.buffer))
     nodes = Array{Node}(undef, length(ind.nodes))
     for i in eachindex(ind.nodes)
         nodes[i] = copy(ind.nodes[i])
@@ -141,49 +141,6 @@ end
 
 function get_active_nodes(ind::NSGA2CGPInd)
     ind.nodes[[n.active for n in ind.nodes]]
-end
-
-function rank!(ind::NSGA2CGPInd,rank::Int64)
-    ind.r=rank
-end
-
-function n_increment!(ind::NSGA2CGPInd,m::Int64)
-    ind.n+=m
-end
-
-function distance!(ind::NSGA2CGPInd,dist::Float64)
-    ind.distance=dist
-end
-
-function addDominated!(ind::NSGA2CGPInd,dominated::NSGA2CGPInd)
-    push!(ind.S,dominated)
-end
-
-function reset_params!(ind::NSGA2CGPInd)
-    ind.n=0
-    ind.r=0
-    ind.distance=0
-    ind.S=Array{NSGA2CGPInd}(undef,0)
-end
-
-function get_S(ind::NSGA2CGPInd)
-    ind.S
-end
-
-function get_n(ind::NSGA2CGPInd)
-    ind.n
-end
-
-function get_distance(ind::NSGA2CGPInd)
-    ind.distance
-end
-
-function get_rank(ind::NSGA2CGPInd)
-    ind.r
-end
-
-function get_fitness_i(ind::NSGA2CGPInd,i::Int64)
-    ind.fitness[i]
 end
 
 

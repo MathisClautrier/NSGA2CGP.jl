@@ -1,7 +1,7 @@
 # Cambrian.jl settings
 seed: 0
 d_fitness: 3
-n_population: 8
+n_population: 15
 n_elite: 1
 n_gen: 50
 log_gen: 1
@@ -9,7 +9,7 @@ save_gen: 10
 m_rate: 0.1
 # CartesianGeneticProgramming.jl settings
 rows: 1
-columns: 100
+columns: 400
 recur: 0.2
 out_m_rate: 0.3
 p_mutation: 0.7
